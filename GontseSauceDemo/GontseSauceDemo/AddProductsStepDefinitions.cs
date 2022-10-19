@@ -9,6 +9,15 @@ namespace GontseSauceDemo
     [Binding]
     public class AddProductsStepDefinitions
     {
+        private const string scenarioName = "AddProducts";
+        private const string addeddProductKey = "key";
+
+
+        public AddProductsStepDefinitions(FeatureContext featureContext)
+        {
+            BrowserInfo.SetCurrentFeatureContext(featureContext);
+        }
+
         [Given(@"\[User Is Logged On]")]
         public void GivenUserIsLoggedOn()
         {
@@ -21,6 +30,7 @@ namespace GontseSauceDemo
         public void WhenUserAddsToCart(string product)
         {
             BrowserInfo.GetCurrentPage<Products>().AddToCart(product);
+            BrowserInfo.SetValue(scenarioName, product, product);
         }
 
 
@@ -76,6 +86,7 @@ namespace GontseSauceDemo
         [Then(@"\[User removes <""([^""]*)"">]")]
         public void ThenUserRemoves(string boltshirt)
         {
+            BrowserInfo.GetValue<Cart>(scenarioName, boltshirt).ToString();
             BrowserInfo.GetCurrentPage<Cart>().RemoveFromCart(boltshirt);
         }
     }

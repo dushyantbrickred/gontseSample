@@ -17,7 +17,6 @@ namespace GontseSauceDemo.Utilities
             }
         }
 
-        [Obsolete]
         public virtual void OnPageLoad()
         {
             BrowserInfo.Current.Manage().Window.Maximize();

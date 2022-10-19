@@ -13,11 +13,17 @@ namespace GontseSauceDemo.Utilities
 {
     internal class BrowserInfo
     {
+        public static FeatureContext _featureContext;
+
+        public static void SetCurrentFeatureContext(FeatureContext featureContext)
+        {
+            BrowserInfo._featureContext = featureContext;
+        }
         public static IWebDriver Current
         {
             get
             {
-                if (!FeatureContext.Current.ContainsKey("browser"))
+                if (!_featureContext.ContainsKey("browser"))
                 {
                     IWebDriver driver = null;
 
@@ -28,9 +34,9 @@ namespace GontseSauceDemo.Utilities
                     driver = new ChromeDriver(ChromeOptions);
 
                     driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
-                    FeatureContext.Current["browser"] = driver;
+                    _featureContext["browser"] = driver;
                 }
-                return (IWebDriver)FeatureContext.Current["browser"];
+                return (IWebDriver)_featureContext["browser"];
             }
         }
         public static T NavigateToPage<T>() where T : BasePage, new()
@@ -44,7 +50,7 @@ namespace GontseSauceDemo.Utilities
             {
                 if (page.IsValid())
                 {
-                    FeatureContext.Current["currentPage"] = page;
+                    _featureContext["currentPage"] = page;
                     return page;
                 }
             }
@@ -54,22 +60,21 @@ namespace GontseSauceDemo.Utilities
             return page;
         }
 
-        [Obsolete]
+        
         public static T NewCurrentPage<T>() where T : BasePage, new()
         {
             var page = new T();
             page.OnPageLoad();
 
-            FeatureContext.Current["currentPage"] = page;
+            _featureContext["currentPage"] = page;
 
             return page;
         }
 
-        [Obsolete]
         public static T GetCurrentPage<T>() where T : BasePage
         {
-            var page = FeatureContext.Current["currentPage"] as T;
-            return page;
+            var currentPage = _featureContext["currentPage"] as T;
+            return currentPage;
         }
         public static IWebElement WaitForElement(By by, int timeoutInSeconds = 20)
         {
@@ -83,6 +88,26 @@ namespace GontseSauceDemo.Utilities
 
             return result;
         }
+        public static void SetValue<T>(string scenario, string key, T value)
+        {
+            _featureContext.Add(scenario + "|" + key, value);
+        }
+        public static T GetValue<T>(string scenario, string key) where T : class
+        {
+            var uniqueKey = scenario + "|" + key;
+            if(!_featureContext.ContainsKey(uniqueKey))
+            {
+                return default(T);
+            }
+            return _featureContext[uniqueKey] as T;
+        }
 
+        [AfterTestRun]
+        public static void AfterTestRun()
+        {
+            Current.Quit();
+            Current.Dispose();
+            _featureContext.Remove("Browser");
+        }
     }
 }
