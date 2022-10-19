@@ -86,8 +86,8 @@ namespace GontseSauceDemo
         [Then(@"\[User removes <""([^""]*)"">]")]
         public void ThenUserRemoves(string boltshirt)
         {
-            BrowserInfo.GetValue<Cart>(scenarioName, boltshirt).ToString();
-            BrowserInfo.GetCurrentPage<Cart>().RemoveFromCart(boltshirt);
+            string productToRemove = BrowserInfo.GetValue<string>(scenarioName, boltshirt).ToString();
+            BrowserInfo.GetCurrentPage<Cart>().RemoveFromCart(productToRemove);
         }
     }
 }
